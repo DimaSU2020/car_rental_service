@@ -6,16 +6,16 @@ import (
 	"strconv"
 
 	"github.com/DimaSU2020/car_rental_service/internal/http/dto"
-	"github.com/DimaSU2020/car_rental_service/internal/service"
+	"github.com/DimaSU2020/car_rental_service/internal/service/bookings"
 
 	"github.com/gin-gonic/gin"
 )
 
 type BookingHandlers struct {
-	service service.BookingService
+	service bookings.BookingService
 }
 
-func NewBookingHandlers(service service.BookingService) *BookingHandlers {
+func NewBookingHandlers(service bookings.BookingService) *BookingHandlers {
 	return &BookingHandlers{service: service}
 }
 
@@ -58,7 +58,7 @@ func (h *BookingHandlers) GetByID(c *gin.Context) {
 	}
 
 	b, err := h.service.GetByID(c.Request.Context(), id)
-	if errors.Is(err, service.ErrBookingNotFound) {
+	if errors.Is(err, bookings.ErrBookingNotFound) {
 		writeNotFound(c, "booking not found")
 		return
 	}
@@ -78,7 +78,7 @@ func (h *BookingHandlers) Create(c *gin.Context) {
 		return
 	}
 
-	booking := service.CreateBookingInput{
+	booking := bookings.CreateBookingInput{
 		ID_car      : req.ID_car,
 		ID_user     : req.ID_user,    
 		Start_day   : req.Start_day,

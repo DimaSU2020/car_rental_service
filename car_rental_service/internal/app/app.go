@@ -9,7 +9,9 @@ import (
 	"github.com/DimaSU2020/car_rental_service/internal/app/server"
 	dbSQLite "github.com/DimaSU2020/car_rental_service/internal/infra/db/sqlite"
 	repoSQLite "github.com/DimaSU2020/car_rental_service/internal/repo/sqlite"
-	"github.com/DimaSU2020/car_rental_service/internal/service"
+	"github.com/DimaSU2020/car_rental_service/internal/service/cars"
+	"github.com/DimaSU2020/car_rental_service/internal/service/bookings"
+	"github.com/DimaSU2020/car_rental_service/internal/service/users"
 )
 
 func BuildHTTPServer (c *config.Config) (*http.Server, func(), error) {
@@ -25,16 +27,16 @@ func BuildHTTPServer (c *config.Config) (*http.Server, func(), error) {
 	}
 	
 	carRepo := repoSQLite.NewCarRepo(db)
-	carSvc  := service.NewCarService(carRepo)
+	carSvc  := cars.NewCarService(carRepo)
 
 	userRepo := repoSQLite.NewUserRepo(db)
-	userSvc  := service.NewUserService(userRepo)
+	userSvc  := users.NewUserService(userRepo)
 
 	licenseRepo := repoSQLite.NewLicenseRepo(db)
-	licenseSvc  := service.NewLicenseService(licenseRepo)
+	licenseSvc  := users.NewLicenseService(licenseRepo)
 
 	bookingRepo := repoSQLite.NewBookingRepo(db)
-	bookingSvc  := service.NewBookingService(bookingRepo)
+	bookingSvc  := bookings.NewBookingService(bookingRepo)
 
 	srv := server.NewServer(
 		carSvc,

@@ -18,6 +18,49 @@ type Car struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
+func NewCar(
+	brand string,
+	model string,
+	year int,
+	dailyRentCost int64,
+	photo string,
+) (*Car, error) {
+
+	c := &Car{
+		Brand: strings.TrimSpace(brand),
+		Model: strings.TrimSpace(model),
+		Year: year,
+		DailyRentCost: dailyRentCost,
+		Photo: photo,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := c.Validate(); err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+func (c *Car) UpdateCar(
+	brand string,
+	model string,
+	year int,
+	dailyRentCost int64,
+	photo string,
+) error {
+
+	c.Brand = strings.TrimSpace(brand)
+	c.Model = strings.TrimSpace(model)
+	c.Year  = year
+	c.DailyRentCost = dailyRentCost
+	c.Photo = photo
+	c.UpdatedAt = time.Now()
+
+	return c.Validate()
+}
+
 func (c *Car) Validate() error {
     if strings.TrimSpace(c.Brand) == "" {
 		return helper.ErrEmptyBrand
@@ -31,7 +74,7 @@ func (c *Car) Validate() error {
         return helper.ErrWrongRentCost
     }
 
-	if c.Year < 1900 || c.Year > 2025 {
+	if c.Year < 1900 || c.Year > time.Now().Year()+1 {
 		return helper.ErrWrongYear
 	}
 

@@ -2,24 +2,26 @@ package server
 
 import (
 	"github.com/DimaSU2020/car_rental_service/internal/http/handlers"
-	"github.com/DimaSU2020/car_rental_service/internal/service"
+	"github.com/DimaSU2020/car_rental_service/internal/service/cars"
+	"github.com/DimaSU2020/car_rental_service/internal/service/bookings"
+	"github.com/DimaSU2020/car_rental_service/internal/service/users"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Server struct {
-	carService       service.CarService
-	userService      service.UserService
-	licenseService   service.LicenseService
-	bookingService   service.BookingService
+	carService       cars.CarService
+	userService      users.UserService
+	licenseService   users.LicenseService
+	bookingService   bookings.BookingService
 	router           *gin.Engine
 }
 
 func NewServer(
-	carService       service.CarService, 
-	userService      service.UserService,
-	licenseService   service.LicenseService,
-	bookingService   service.BookingService,
+	carService       cars.CarService, 
+	userService      users.UserService,
+	licenseService   users.LicenseService,
+	bookingService   bookings.BookingService,
 ) *Server {
 
 	s := &Server{
@@ -50,7 +52,7 @@ func (s *Server) SetupRouter() {
 	v1 := r.Group("/v1")
 	{
 		cars := v1.Group("/cars")
-		cars.GET("/",             carHandlers.List)
+		cars.GET("/",            carHandlers.List)
 		cars.POST("/",           carHandlers.Create)
 		cars.GET("/:carID",      carHandlers.GetByID)
 		cars.PATCH("/:carID",    carHandlers.Update)

@@ -7,6 +7,7 @@ var (
 	ErrEmptyModel        = errors.New("model cannot be empty")
 	ErrWrongRentCost     = errors.New("rent cannot be empty or negative")
 	ErrWrongYear         = errors.New("year must be between 1900 and 2025")
+	ErrEmptyPhoto        = errors.New("photo connot be empty")
 	ErrTooShortName      = errors.New("name cant be less than 2 symbols")
 	ErrTooLongName       = errors.New("name cant be more than 20 symbols")
 	ErrEmptyName         = errors.New("name cannot be empty")

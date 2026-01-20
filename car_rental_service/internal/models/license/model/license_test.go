@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/DimaSU2020/car_rental_service/internal/models/fixture"
-	"github.com/DimaSU2020/car_rental_service/internal/models/license/test_data"
+	"github.com/DimaSU2020/car_rental_service/internal/models/license/testdata"
 )
 
 

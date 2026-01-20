@@ -6,15 +6,15 @@ import (
 	"strconv"
 
 	"github.com/DimaSU2020/car_rental_service/internal/http/dto"
-	"github.com/DimaSU2020/car_rental_service/internal/service"
+	"github.com/DimaSU2020/car_rental_service/internal/service/cars"
 	"github.com/gin-gonic/gin"
 )
 
 type CarHandlers struct {
-	service service.CarService
+	service cars.CarService
 }
 
-func NewCarHandlers(service service.CarService) *CarHandlers {
+func NewCarHandlers(service cars.CarService) *CarHandlers {
 	return &CarHandlers{service: service}
 }
 
@@ -54,7 +54,7 @@ func (h *CarHandlers) GetByID(c *gin.Context) {
 	}
 
 	car, err := h.service.GetByID(c.Request.Context(), id)
-	if errors.Is(err, service.ErrCarNotFound) {
+	if errors.Is(err, cars.ErrCarNotFound) {
 		writeNotFound(c, "car not found")
 		return
 	}
@@ -73,7 +73,7 @@ func (h *CarHandlers) Create(c *gin.Context) {
 		return
 	}
 
-	in := service.CreateCarInput {
+	in := cars.CreateCarInput {
 		Brand        : req.Brand,
 		Model        : req.Model,
 		Year         : req.Year,
@@ -82,14 +82,11 @@ func (h *CarHandlers) Create(c *gin.Context) {
 	}
 
 	car, err := h.service.Create(c.Request.Context(), in)
-	if errors.Is(err, service.ErrInvalidCarData) {
+	if errors.Is(err, cars.ErrInvalidCarData) {
 		writeUnprocessable(c, err.Error())
 		return
 	}
-	if errors.Is(err, service.ErrCarAlreadyExist) {
-		writeConflict(c, err.Error())
-		return
-	}
+
 	if err != nil {
 		writeInternalError(c, err)
 		return
@@ -111,7 +108,7 @@ func (h *CarHandlers) Update(c *gin.Context) {
 		return
 	}
 
-	in := service.UpdateCarInput{
+	in := cars.UpdateCarInput{
 		ID           : id,
 		Brand        : req.Brand,
 		Model        : req.Model,
@@ -121,11 +118,11 @@ func (h *CarHandlers) Update(c *gin.Context) {
 	}
 
 	err = h.service.Update(c.Request.Context(), in)
-	if errors.Is(err, service.ErrCarNotFound) {
+	if errors.Is(err, cars.ErrCarNotFound) {
 		writeNotFound(c, "car not found")
 		return
 	}
-	if errors.Is(err, service.ErrInvalidCarData) {
+	if errors.Is(err, cars.ErrInvalidCarData) {
 		writeUnprocessable(c, err.Error())
 		return
 	}
@@ -145,7 +142,7 @@ func (h *CarHandlers) Delete(c *gin.Context) {
 	}
 
 	err = h.service.Delete(c.Request.Context(), id)
-	if errors.Is(err, service.ErrCarNotFound) {
+	if errors.Is(err, cars.ErrCarNotFound) {
 		writeNotFound(c, "car not found")
 		return
 	}

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/DimaSU2020/car_rental_service/internal/models/booking/test_data"
+	"github.com/DimaSU2020/car_rental_service/internal/models/booking/testdata"
 	"github.com/DimaSU2020/car_rental_service/internal/models/fixture"
 )
 

@@ -31,13 +31,9 @@ func writeUpdated(c *gin.Context, payload any) {
 }
 
 func writeInternalError(c *gin.Context, err error) {
-	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err})
+	c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 }
 
 func writeUnprocessable(c *gin.Context, msg string) {
 	c.AbortWithStatusJSON(http.StatusUnprocessableEntity, gin.H{"error": msg})
-}
-
-func writeConflict(c *gin.Context, msg string) {
-	c.AbortWithStatusJSON(http.StatusConflict, gin.H{"error": msg})
 }

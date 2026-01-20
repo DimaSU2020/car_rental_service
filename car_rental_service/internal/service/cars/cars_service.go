@@ -1,22 +1,20 @@
-package service
+package cars
 
 import (
 	"context"
 	"errors"
-	"time"
+	"fmt"
 
 	"github.com/DimaSU2020/car_rental_service/internal/models/car/model"
+	"github.com/DimaSU2020/car_rental_service/internal/repo"
 )
 
 type CreateCarInput struct {
-	ID            int64
     Brand         string   
     Model         string
     Year          int
     DailyRentCost int64
 	Photo         string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
 }
 
 type UpdateCarInput struct {
@@ -26,8 +24,6 @@ type UpdateCarInput struct {
     Year          int
     DailyRentCost int64
 	Photo         string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
 }
 
 type CarRepository interface {
@@ -53,7 +49,6 @@ type carService struct {
 var (
 	ErrCarNotFound     = errors.New("car not found")
 	ErrInvalidCarData  = errors.New("invalid car data")
-	ErrCarAlreadyExist = errors.New("car already exist")
 )
 
 func NewCarService(repo CarRepository) CarService {
@@ -70,60 +65,54 @@ func (s *carService) List(ctx context.Context, limit, offset int) ([]*model.Car,
 		offset = 0
 	}
 
-	allCars, err := s.repo.List(ctx, limitMax, offset)
-	if err != nil {
-		return nil, err
-	}
-
-	if offset > len(allCars) {
-		return []*model.Car{}, nil
-	}
-	
-	endPagination := min(limit + offset, len(allCars))
-
-	return allCars[offset:endPagination], nil
-}
-
-func (s *carService) GetByID(ctx context.Context, id int64) (*model.Car, error) {
-	f, err := s.repo.GetByID(ctx, id)
-	if err != nil || errors.Is(err, ErrCarNotFound) {
-		return nil, err
-	}
-    return f, nil
+	return s.repo.List(ctx, limit, offset)
 }
 
 func (s *carService) Create(ctx context.Context, input CreateCarInput) (*model.Car, error) {
-	c := model.Car{
-        Brand         : input.Brand,
-		Model         : input.Model,
-        Year          : input.Year,
-        DailyRentCost : input.DailyRentCost,
-		Photo         : input.Photo,
-		CreatedAt     : input.CreatedAt,
-		UpdatedAt     : input.UpdatedAt,
-    }
+	car, err := model.NewCar(
+        input.Brand,
+		input.Model,
+        input.Year,
+        input.DailyRentCost,
+		input.Photo,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrInvalidCarData, err.Error())
+	}
 
-	err := c.Validate()
+	return s.repo.Create(ctx, car)
+}
+
+func (s *carService) GetByID(ctx context.Context, id int64) (*model.Car, error) {
+	car, err := s.repo.GetByID(ctx, id)
+	if errors.Is(err, repo.ErrNotFound) {
+		return nil, ErrCarNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
 
-	return s.repo.Create(ctx, &c)
+    return car, nil
 }
 
 func (s *carService) Update(ctx context.Context, input UpdateCarInput) error {
-	car := model.Car{
-		ID            : input.ID,
-		Brand         : input.Brand,
-		Model         : input.Model,
-        Year          : input.Year,
-		Photo         : input.Photo,
-        DailyRentCost : input.DailyRentCost,
-		UpdatedAt     : input.UpdatedAt,
-    }
-
-	err := car.Validate()
+	genCar, err := s.repo.GetByID(ctx, input.ID)
+	if errors.Is(err, repo.ErrNotFound) {
+		return ErrCarNotFound
+	}
 	if err != nil {
+		return err
+	}
+
+	car := *genCar
+
+	if err := car.UpdateCar(
+		input.Brand,
+		input.Model,
+        input.Year,
+		input.DailyRentCost,
+		input.Photo,
+	); err != nil {
 		return err
 	}
 
@@ -131,9 +120,9 @@ func (s *carService) Update(ctx context.Context, input UpdateCarInput) error {
 }
 
 func (s *carService) Delete(ctx context.Context, id int64) error {
-	_, err := s.repo.GetByID(ctx, id)
-	if err != nil || errors.Is(err, ErrCarNotFound) {
-		return err
+	err := s.repo.Delete(ctx, id)
+	if errors.Is(err, repo.ErrNotFound) {
+		return nil
 	}
-	return s.repo.Delete(ctx, id)
+	return err
 }

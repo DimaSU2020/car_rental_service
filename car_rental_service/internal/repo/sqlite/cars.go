@@ -9,13 +9,12 @@ import (
 	"time"
 
 	"github.com/DimaSU2020/car_rental_service/internal/models/car/model"
+	"github.com/DimaSU2020/car_rental_service/internal/repo"
 )
 
 type CarRepo struct{
 	db *sql.DB
 }
-
-var ErrCarNotFound = errors.New("car not found")
 
 func NewCarRepo(db *sql.DB) *CarRepo {
 	return &CarRepo{
@@ -83,7 +82,7 @@ func (r *CarRepo) GetByID(ctx context.Context, id int64) (*model.Car, error) {
 		&c.ID, &c.Brand, &c.Model, &c.Year, &c.DailyRentCost, &c.Photo, &c.CreatedAt, &c.UpdatedAt,
 		); err != nil {
 		if err == sql.ErrNoRows {
-			return nil, ErrCarNotFound
+			return nil, repo.ErrNotFound
 		}
 		return nil, errors.New("failed to scan row")
 	}

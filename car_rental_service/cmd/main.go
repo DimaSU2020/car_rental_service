@@ -19,7 +19,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("server startup failed: %v", err)
 	}
-
 	defer cleanup()
 
 	log.Fatal(srv.ListenAndServe())

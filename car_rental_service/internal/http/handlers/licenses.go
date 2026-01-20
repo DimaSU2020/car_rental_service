@@ -6,16 +6,16 @@ import (
 	"strconv"
 
 	"github.com/DimaSU2020/car_rental_service/internal/http/dto"
-	"github.com/DimaSU2020/car_rental_service/internal/service"
+	"github.com/DimaSU2020/car_rental_service/internal/service/users"
 
 	"github.com/gin-gonic/gin"
 )
 
 type LicenseHandlers struct {
-	service service.LicenseService
+	service users.LicenseService
 }
 
-func NewLicenseHandlers(service service.LicenseService) *LicenseHandlers {
+func NewLicenseHandlers(service users.LicenseService) *LicenseHandlers {
 	return &LicenseHandlers{service: service}
 }
 
@@ -58,7 +58,7 @@ func (h *LicenseHandlers) GetByID(c *gin.Context) {
 	}
 
 	l, err := h.service.GetByID(c.Request.Context(), id)
-	if errors.Is(err, service.ErrLicenseNotFound) {
+	if errors.Is(err, users.ErrLicenseNotFound) {
 		writeNotFound(c, "license not found")
 		return
 	}
@@ -78,7 +78,7 @@ func (h *LicenseHandlers) Create(c *gin.Context) {
 		return
 	}
 
-	license := service.CreateLicenseInput{
+	license := users.CreateLicenseInput{
 		Number         : req.Number,
 		IssuanceDate   : req.IssuanceDate,
 		ExpirationDate : req.ExpirationDate,
@@ -110,7 +110,7 @@ func (h *LicenseHandlers) Update(c *gin.Context) {
         return
     }
 
-	in := service.UpdateLicenseInput{
+	in := users.UpdateLicenseInput{
 		ID             : id,
 		Number         : req.Number,
 		IssuanceDate   : req.IssuanceDate,
@@ -137,7 +137,7 @@ func (h *LicenseHandlers) Delete(c *gin.Context) {
 	}
 
 	err = h.service.Delete(c.Request.Context(), id)
-	if errors.Is(err, service.ErrLicenseNotFound) {
+	if errors.Is(err, users.ErrLicenseNotFound) {
 		writeNotFound(c, "license not found")
 		return
 	}

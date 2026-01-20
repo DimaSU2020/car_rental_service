@@ -6,16 +6,16 @@ import (
 	"strconv"
 
 	"github.com/DimaSU2020/car_rental_service/internal/http/dto"
-	"github.com/DimaSU2020/car_rental_service/internal/service"
+	"github.com/DimaSU2020/car_rental_service/internal/service/users"
 
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandlers struct {
-	service service.UserService
+	service users.UserService
 }
 
-func NewUserHandlers(service service.UserService) *UserHandlers {
+func NewUserHandlers(service users.UserService) *UserHandlers {
 	return &UserHandlers{service: service}
 }
 
@@ -58,7 +58,7 @@ func (h *UserHandlers) GetByID(c *gin.Context) {
 	}
 
 	u, err := h.service.GetByID(c.Request.Context(), id)
-	if errors.Is(err, service.ErrUserNotFound) {
+	if errors.Is(err, users.ErrUserNotFound) {
 		writeNotFound(c, "user not found")
 		return
 	}
@@ -78,7 +78,7 @@ func (h *UserHandlers) Create(c *gin.Context) {
 		return
 	}
 
-	user := service.CreateUserInput{
+	user := users.CreateUserInput{
 		Name     : req.Name,
 		Email    : req.Email,
 		Birthday : req.Birthday,
@@ -112,7 +112,7 @@ func (h *UserHandlers) Update(c *gin.Context) {
         return
     }
 
-	in := service.UpdateUserInput{
+	in := users.UpdateUserInput{
 		ID        : id,
 		Name      : req.Name,
 		Email     : req.Email,
@@ -140,7 +140,7 @@ func (h *UserHandlers) Delete(c *gin.Context) {
 	}
 
 	err = h.service.Delete(c.Request.Context(), id)
-	if errors.Is(err, service.ErrUserNotFound) {
+	if errors.Is(err, users.ErrUserNotFound) {
 		writeNotFound(c, "user not found")
 		return
 	}
