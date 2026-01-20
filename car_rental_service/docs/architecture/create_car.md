@@ -1,3 +1,5 @@
+```mermaid
+
 sequenceDiagram
     autonumber
 
@@ -38,3 +40,5 @@ sequenceDiagram
 
     H->>H: Map domain → CarResponse
     H-->>C: 201 Created (JSON)
+```
+
