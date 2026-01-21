@@ -73,8 +73,7 @@ func (s *Server) SetupRouter() {
 		bookings.GET("/",             bookingHandlers.List)
 		bookings.POST("/",            bookingHandlers.Create)
 		bookings.GET("/:bookingID",   bookingHandlers.GetByID)
-		// bookings.GET("/available",    bookingHandlers.IsAvailable)
-		// bookings.GET("/user/:userId", bookingHandlers.GetByUserID)
+		bookings.GET("/available",    bookingHandlers.IsAvailable)
 	}
 
 	s.router = r

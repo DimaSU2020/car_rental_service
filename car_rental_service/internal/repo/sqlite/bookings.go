@@ -125,3 +125,31 @@ func (r *BookingRepo) GetByID(ctx context.Context, id int64) (*model.Booking, er
 	return &b, nil
 }
 
+func (r *BookingRepo) ExistsOverlappingBooking(
+	ctx      context.Context,
+	carID    int64,
+	from, to time.Time,
+) (bool, error) {
+	const q = `
+		SELECT 1
+		FROM bookings
+		WHERE id_car = ?
+			AND status = ?
+			AND start_day < ?
+			AND end_day > ?
+		LIMIT 1
+	`
+	row := r.db.QueryRowContext(ctx, q, carID, model.BookingStatusDone, to, from)
+
+	var dummy int
+	err := row.Scan(&dummy)
+	if err == sql.ErrNoRows {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+

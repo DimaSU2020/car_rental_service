@@ -21,4 +21,5 @@ var (
 	ErrInvalidStatus     = errors.New("Such status does not exist")
 	ErrStartBefore       = errors.New("start_day should be before end_day")
 	ErrWrongRentalPeriod = errors.New("Wrong rental period")
+	ErrBookingInPast     = errors.New("booking in past")
 )

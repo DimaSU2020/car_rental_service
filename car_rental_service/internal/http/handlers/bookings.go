@@ -4,8 +4,10 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/DimaSU2020/car_rental_service/internal/http/dto"
+	"github.com/DimaSU2020/car_rental_service/internal/models/helper"
 	"github.com/DimaSU2020/car_rental_service/internal/service/bookings"
 
 	"github.com/gin-gonic/gin"
@@ -96,4 +98,42 @@ func (h *BookingHandlers) Create(c *gin.Context) {
 	}
 
 	writeOK(c, dto.BookingToResponse(b))
+}
+
+func (h *BookingHandlers) IsAvailable(c *gin.Context) {
+	carID, err := strconv.ParseInt(c.Query("id_car"), 10, 64)
+	if err != nil {
+		writeBadRequest(c, "invalid id_car")
+		return
+	}
+
+	from, err := time.Parse(time.RFC3339, c.Query("start_day"))
+	if err != nil {
+		writeBadRequest(c, "invalid start_day")
+		return
+	}
+
+	to, err := time.Parse(time.RFC3339, c.Query("end_day"))
+	if err != nil {
+		writeBadRequest(c, "invalid end_day")
+		return
+	}
+
+	available, err := h.service.IsCarAvailable(c, carID, from, to)
+	if err != nil {
+		if errors.Is(err, helper.ErrStartBefore) || errors.Is(err, helper.ErrBookingInPast) {
+			writeUnprocessable(c, err.Error())
+			return
+		}
+
+		writeInternalError(c, err)
+		return
+	}
+
+	writeOK(c, dto.CheckAvalibleCar{
+		ID        : carID,
+		Start_day : from,
+		End_day   : to,
+		Available : available,
+	})
 }

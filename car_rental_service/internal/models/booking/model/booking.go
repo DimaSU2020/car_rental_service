@@ -19,22 +19,26 @@ type Booking struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-type Status struct {
-	Done     string
-	Canceled string
-}
+const (
+	BookingStatusDone     = "done"
+	BookingStatusCanceled = "canceled"
+)
 
-var Statuses = map[string]string{
-	"done"     : "done",
-	"canceled" : "canceled",
+var AllowedStatuses = map[string]struct{}{
+	BookingStatusDone:     {},
+	BookingStatusCanceled: {},
 }
 
 func (b *Booking) Validate() error {
-
 	maxRentalPeriod := 28
+	today := time.Now().Truncate(24 * time.Hour)
 
-	if b.Start_day.After(b.End_day) {
+	if !b.Start_day.Before(b.End_day) {
 		return helper.ErrStartBefore
+	}
+
+	if b.Start_day.Before(today) {
+		return helper.ErrBookingInPast
 	}
 
 	if b.End_day.After(b.Start_day.AddDate(0,0,maxRentalPeriod)) {
@@ -45,8 +49,7 @@ func (b *Booking) Validate() error {
 		return helper.ErrWrongRentCost
 	}
 
-	_, exists := Statuses[b.Status]
-	if !exists {
+	if _, ok := AllowedStatuses[b.Status]; !ok {
 		return helper.ErrInvalidStatus
 	}
 

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/DimaSU2020/car_rental_service/internal/models/booking/model"
+	"github.com/DimaSU2020/car_rental_service/internal/models/helper"
 )
 
 type CreateBookingInput struct {
@@ -44,12 +45,14 @@ type BookingRepository interface {
 	List(ctx context.Context, limit, offset int) ([]*model.Booking, error)
 	GetByID(ctx context.Context, id int64) (*model.Booking, error)
 	Create(ctx context.Context, booking *model.Booking) (*model.Booking, error)
+	ExistsOverlappingBooking(ctx context.Context, carID int64, from, to time.Time) (bool, error)
 }
 
 type BookingService interface {
 	List(ctx context.Context, limit, offset int) ([]*model.Booking, error)
 	GetByID(ctx context.Context, id int64) (*model.Booking, error)
 	Create(ctx context.Context, input CreateBookingInput) (*model.Booking, error)
+	IsCarAvailable(ctx context.Context, carID int64, from, to time.Time) (bool, error)
 }
 
 type bookingService struct {
@@ -100,7 +103,7 @@ func (b *bookingService) Create(ctx context.Context, input CreateBookingInput) (
 		Start_day   : input.Start_day,
 		End_day     : input.End_day,
 		Daily_cost  : input.Daily_cost,
-		Status      : model.Statuses["done"],
+		Status      : model.BookingStatusDone,
 		CreatedAt   : now,
 		UpdatedAt   : now,
     }
@@ -113,17 +116,17 @@ func (b *bookingService) Create(ctx context.Context, input CreateBookingInput) (
 	return b.repo.Create(ctx, &booking)
 }
 
-// func (b *bookingService) CheckAvailable(ctx context.Context, input CheckBookingInput) (string, error) {
-// 	checkBooking := model.Booking {
-// 		ID_car      : input.ID_car,
-// 		ID_user     : input.ID_user,    
-// 		Start_day   : input.Start_day,
-// 		End_day     : input.End_day,
-// 		Status      : model.Statuses["done"],
-// 	}
+func (b *bookingService) IsCarAvailable(ctx context.Context, carID int64, from, to time.Time) (bool, error) {
+	if !from.Before(to) {
+		return false, helper.ErrStartBefore
+	}
 
+	exists, err := b.repo.ExistsOverlappingBooking(ctx, carID, from, to)
+	if err != nil {
+		return false, err
+	}
 
-// 	return "available", nil
-// }
+	return !exists, nil
+}
 
 var ErrBookingNotFound = errors.New("booking not found")
