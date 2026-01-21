@@ -130,7 +130,7 @@ func (h *BookingHandlers) IsAvailable(c *gin.Context) {
 		return
 	}
 
-	writeOK(c, dto.CheckAvalibleCar{
+	writeOK(c, dto.CheckAvailableCar{
 		ID        : carID,
 		Start_day : from,
 		End_day   : to,

@@ -30,7 +30,7 @@ type BookingResponse struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-type CheckAvalibleCar struct {
+type CheckAvailableCar struct {
 	ID        int64     `json:"id_car"`
 	Start_day time.Time `json:"start_day"`
 	End_day   time.Time `json:"end_day"`
